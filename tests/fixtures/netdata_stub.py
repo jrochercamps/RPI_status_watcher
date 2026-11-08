@@ -9,7 +9,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlparse(self.path)
         if url.path == "/api/v1/charts":
-            body = {"charts": {"system.cpu": {"id": "system.cpu", "name": "system.cpu", "title": "CPU", "units": "%", "dimensions": {"user": {"name": "user"}}}}}
+            body = {"charts": {"system.cpu": {"id": "system.cpu", "name": "system.cpu", "title": "CPU", "units": "percentage", "dimensions": {"user": {"name": "user"}}}}}
         elif url.path == "/api/v1/data":
             query = parse_qs(url.query)
             now = int(time.time())

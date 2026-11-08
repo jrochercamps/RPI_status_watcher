@@ -22,6 +22,10 @@ Se usan rutas relativas al mismo origen, sin credenciales ni cabeceras especiale
 
 `/api/health` solo comprueba el proceso del backend, no la conexión con Netdata, por lo que no se usa como indicador de disponibilidad de métricas. La sección Históricos consulta las instantáneas de `/api/history`, mientras que el gráfico usa la serie de `/api/data`. Alertas consulta también `/api/rule-alerts/history`. No se usa `/api/status`. El indicador de conexión refleja la consulta al catálogo, no la salud de cada servicio. No hay autenticación ni acciones de administración; el backend debe protegerse según su documentación.
 
+Cada gráfica muestra las alertas de Netdata cuyo identificador de gráfico coincida exactamente con el ID o nombre de la gráfica y, si la API las facilita, sus condiciones `warn` y `crit` sin intentar interpretarlas. No son necesariamente límites físicos del dispositivo; la ausencia de condiciones no implica seguridad. El máximo observado solo se refiere a las muestras del intervalo seleccionado. Si Netdata indica que el motor de alertas está deshabilitado, se muestra expresamente.
+
+Las tarjetas históricas consultan desde `first_entry` de cada gráfica cuando está disponible, con un máximo de 2000 puntos. Son máximos de los puntos devueltos por Netdata: pueden existir huecos o agregaciones que oculten picos y no constituyen máximos absolutos garantizados. No se consulta un periodo inventado si falta `first_entry`. GPU y uptime no tienen actualmente una fuente identificada compatible. La identificación de los discos exige metadatos inequívocos del punto de montaje; queda pendiente verificarla con el catálogo real.
+
 En Configuración el usuario elige cada cuánto se actualiza automáticamente ese navegador: 1, 2, 5, 10 o 30 minutos, con cinco minutos por defecto. Se recuerda en `localStorage` cuando está disponible. La apertura, navegación, cambio de gráfica o intervalo y actualización manual pueden generar peticiones adicionales. Esto no modifica `POLL_INTERVAL_SECONDS` ni la recogida del backend.
 
 ## Verificación

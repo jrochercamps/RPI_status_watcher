@@ -9,11 +9,11 @@ echarts.use([LineChart, GridComponent, LegendComponent, TooltipComponent, Canvas
 export type Series = { labels?: string[]; data?: (number | null)[][] }
 const number = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value)
 const display = (value: number | null, unit: string) => value === null ? 'Sin datos' : `${new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(value)}${unit ? ` ${unit}` : ''}`
+export const metricUnit = (units?: string) => { const unit = units?.trim() || ''; return /^celsius$/i.test(unit) ? '°C' : /^(percentage|percent)$/i.test(unit) ? '%' : unit }
 
 export function MetricGraph({ series, units }: { series: Series | null; units?: string }) {
   const ref = useRef<HTMLDivElement>(null)
-  const rawUnit = units?.trim() || ''
-  const unit = /^celsius$/i.test(rawUnit) ? '°C' : rawUnit
+  const unit = metricUnit(units)
   const rows = useMemo(() => (series?.data ?? []).filter(row => Array.isArray(row) && number(row[0])).slice().sort((a, b) => (a[0] as number) - (b[0] as number)), [series])
   const labels = series?.labels?.slice(1) ?? []
   const summary = labels.map((name, index) => {
