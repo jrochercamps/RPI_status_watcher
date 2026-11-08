@@ -1,0 +1,39 @@
+name: rpi-status-auth
+services:
+  caddy:
+    image: caddy:2.10.2-alpine
+    user: "65532:65532"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    ports:
+      - "127.0.0.1:8766:8080"
+    environment:
+      AUTH_HOST: ${AUTH_HOST:?Run setup-auth.sh first}
+      STATUS_HOST: ${STATUS_HOST:?Run setup-auth.sh first}
+      XDG_DATA_HOME: /tmp
+      XDG_CONFIG_HOME: /tmp
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    networks: [auth_internal, dashboard]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+  authelia:
+    image: authelia/authelia:4.39.15
+    restart: unless-stopped
+    user: "${AUTH_UID:?Run setup-auth.sh first}:${AUTH_GID:?Run setup-auth.sh first}"
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    volumes:
+      - ${AUTH_DATA_DIR:?Run setup-auth.sh first}:/config
+    networks: [auth_internal]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+networks:
+  auth_internal:
+    internal: true
+  dashboard:
+    external: true
+    name: rpi-status-dashboard_default
