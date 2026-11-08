@@ -1,0 +1,40 @@
+name: rpi-status-dashboard
+services:
+  app:
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${PORT:-8765}:8765"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_PATH: /data/status.db
+      NETDATA_URL: ${NETDATA_URL:-http://host.docker.internal:19999}
+      NETDATA_CHARTS: ${NETDATA_CHARTS:-}
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-30}
+      HISTORY_RETENTION_DAYS: ${HISTORY_RETENTION_DAYS:-30}
+      TZ: ${TZ:-Europe/Madrid}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - app_data:/data
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 128
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/health', timeout=3).close()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  app_data:
